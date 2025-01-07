@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="cz-cs">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <link rel="stylesheet" href="./src/style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vite App</title>
+  <script defer src="/src/main.js" type="module"></script>
+</head>
+
+<body>
+  <form method="" action="" class="">
+    <!-- Name of Tournament -->
+    <label for="nameOfTournament">Název turnaje</label>
+    <input type="text" name="nameOfTournament" id="" value="Turnaj" required><br />
+
+    <!-- Place of Tournament -->
+    <label for="placeOfTournament">Místo turnaje</label>
+    <input type="text" name="placeOfTournament" id="" value="Spillarka" required><br />
+
+    <!-- Date of Tournament -->
+    <label for="dateOfTournament">Datum turnaje</label>
+    <input type="date" name="dateOfTournament" id="" required><br />
+
+    <!-- Time of Tournament -->
+    <label for="timeOfTournament">Čas turnaje</label>
+    <input type="time" name="timeOfTournament" id="" required><br />
+
+    <!-- Number of Participants -->
+    <label for="numberOfParticipants">Počet účastníků</label>
+    <input type="text" name="numberOfParticipants" id="" required><br />
+
+    <!-- Number of Groups -->
+    <label for="numberOfGroups">Počet skupin</label>
+    <select name="numberOfGroups" id="">
+      <option value="1" selected="selected">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+      <option value="7">7</option>
+      <option value="8">8</option>
+      <option value="9">9</option>
+      <option value="10">10</option>
+    </select><br />
+
+    <!-- Submit Button -->
+    <input type="submit">
+
+  </form>
+  <div id="tables"></div>
+  <div id="teamsList"></div>
+
+</body>
+
+</html>
