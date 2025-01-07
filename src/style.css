@@ -6,15 +6,27 @@ body {
 }
 
 .hidden {
-  display: none;
-}  
+  display: none !important;
+}
+
+.btn-update-teams {
+  gap: 10px; /* Mezera mezi prvky */
+  box-sizing: border-box;
+}
+
 
 ul {
   list-style-type: none;
+  box-sizing: border-box;
 }
 
 li {
   margin-bottom: 5px;
+  box-sizing: border-box;
+}
+
+#teamsList {
+  box-sizing: border-box;
 }
 
 @media (prefers-color-scheme: light) {
