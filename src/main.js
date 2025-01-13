@@ -1,5 +1,12 @@
+// Import CSS
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+// Import JavaScriptu
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 import { createClient } from '@supabase/supabase-js'
+
+import _ from 'lodash';
 
 
 //----------- Připojení databaze ------------
@@ -8,27 +15,52 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 
+//------------ Zachycení html prvků -----------------
+const form = document.querySelector('form');
+const tournamentInfo = document.querySelector('#tournamentInfo')
+const teamsList = document.querySelector('#teamsList');
+const header = document.querySelector('#header');
+const buttonsForTournament = document.querySelector('#buttonsForTournament');
+
+
 //------------ Výpis tabulek --------------------------
 async function fetchTeams() {
   let { data: teams, error } = await supabase
     .from('teams')
-    .select('*');
+    .select(`
+    *,
+    groups (
+      id,
+      name
+    )
+  `);
 
   if (error) {
     console.error('Chyba při načítání týmů:', error.message);
   } else {
     console.log('Načtené týmy:', teams);
   }
+
+  if (teams.length !== 0) {
+    // Tlačítka pro načíst turnaj z db nebo vytvořit nový turnaj, pokud db obsahuje nějaká data 
+    buttonsForTournament.classList.remove('hidden')
+  } else {
+    buttonsForTournament.classList.add('hidden')
+  }
+
+  // Pokud jsou týmy prázdné, vrátíme prázdné pole, což je bezpečné pro následující kód
+  if (!teams || teams.length === 0) {
+    console.log('Žádné týmy nejsou v databázi.');
+    return [];  // Vrátí prázdné pole, pokud nejsou žádné týmy
+  }
+
+  return teams
 }
 
 fetchTeams();
 
-
-const form = document.querySelector('form');
-const tables = document.querySelector('#tables')
-const teamsList = document.querySelector('#teamsList');
+//------------ Objekt pro uložení dat z formuláře -----------------
 let dataFromForm = {};
-
 
 //------------ Formulář --------------------------
 form.addEventListener('submit', (event) => {
@@ -78,20 +110,22 @@ form.addEventListener('submit', (event) => {
 
   // Pokud jsou všechna data validní
   console.log(dataFromForm);
-  alert('Formulář byl úspěšně odeslán!');
 
   // Vyčištění formuláře
   form.reset();
 
   // Odeslání objektu mimo funkci 
-  handleFormData(dataFromForm)
+  catchDataFromForm(dataFromForm)
+
+  // Odstranění class hidden a zobrazení hlavičky uloženého turnaje
+  tournamentInfo.classList.remove('hidden');
 
 })
 
 
 //------------------- Funkce pro zpracování dat z formuláře ------------
 
-function handleFormData(data) {
+function catchDataFromForm(data) {
   form.classList.add('hidden');
 
   // Výpočet počtu týmů ve skupinách
@@ -99,8 +133,8 @@ function handleFormData(data) {
   let extraTeams = data.numberOfParticipants % data.numberOfGroups;
 
   // Vytvoření seznamu účastníků
-  if (tables) {
-    tables.innerHTML = `
+  if (tournamentInfo) {
+    tournamentInfo.innerHTML = `
     <h3>${data.nameOfTournament}</h3>
     <p>Místo: ${data.placeOfTournament}</p>
     <p>Datum: ${data.dateOfTournament}</p>
@@ -121,6 +155,7 @@ function handleFormData(data) {
 
       // Pro každou skupinu vytvoř nový <ul> a nadpis
       const newUl = document.createElement('ul');
+      newUl.id = `group-${i}`;
       const groupHeader = document.createElement('h4');
       groupHeader.textContent = `Skupina ${i}`;
       newUl.appendChild(groupHeader);
@@ -128,7 +163,7 @@ function handleFormData(data) {
       // Přidání účastníků do skupiny
       for (let j = 1; j <= numberOfParticipantsInThisGroup; j++) {
         const newLi = document.createElement('li');
-        newLi.innerHTML = `<input type="text" id="teamName${count}" placeholder="Účastník ${count}">`;
+        newLi.innerHTML = `<input type="text" id="teamName-${count}" placeholder="Účastník ${count}">`;
         newUl.appendChild(newLi);
         count++
       }
@@ -138,64 +173,204 @@ function handleFormData(data) {
 
 
     // Přidání tlačítka pro přesměrování na předchozí stránku
-    const newButton = document.createElement('button');
-    newButton.textContent = 'Zpět';
-    teamsList.appendChild(newButton);
-    newButton.addEventListener('click', () => {
+    const backButton = document.createElement('button');
+    backButton.classList.add('btn', 'btn-primary', 'p-2', 'm-2');
+    backButton.textContent = 'Zpět';
+    backButton.addEventListener('click', () => {
       form.classList.remove('hidden');
+      tournamentInfo.classList.add('hidden')
       teamsList.innerHTML = "";
     });
+    teamsList.appendChild(backButton);
 
     // Přidání tlačítka pro odeslání týmů do databaze 
     const submitButton = document.createElement('button');
+    submitButton.classList.add('btn', 'btn-primary', 'p-2', 'm-2');
     submitButton.textContent = 'Odeslat týmy';
     submitButton.id = 'submitTeamsList';
     teamsList.appendChild(submitButton);
 
+    // Odeslání týmů do databaze 
     submitButton.addEventListener('click', async (event) => {
       event.preventDefault();
-    
+
       try {
         const teamsData = [];
-    
+
         // Načtení dat týmů z formuláře
         for (let i = 1; i <= dataFromForm.numberOfParticipants; i++) {
-          const teamInput = document.getElementById(`teamName${i}`);
+          const teamInput = document.getElementById(`teamName-${i}`);
+          const team_id = teamInput.id.split('-')[1];
           if (teamInput && teamInput.value.trim()) {
+            const groupId = document.querySelector(`#teamName-${i}`).closest('ul').id;
+            const group_id = groupId.split('-')[1]
+
             teamsData.push({
               name: teamInput.value.trim(),
-              teams_id_in_tournament: teamInput.id // Příklad vazby na turnaj
+              // Vazba na turnaj
+              team_id: parseInt(team_id, 10),
+              group_id: parseInt(group_id, 10),
+
             });
+            console.log(teamsData);
           }
         }
-    
+
         console.log('Odesílaná data týmů:', teamsData);
-    
+
         // Kontrola, zda máme nějaká data k odeslání
         if (teamsData.length === 0) {
           alert('Žádné týmy k odeslání.');
           return;
         }
-    
+
+        // 🧹 1. Vyčištění tabulky
+        const { error: deleteError } = await supabase
+          .from('teams')
+          .delete()
+          .neq('id', 0); // Odstraní všechny záznamy (id != 0 je bezpečná podmínka)
+
+        if (deleteError) {
+          console.error('Chyba při mazání tabulky:', deleteError.message);
+          alert(`Chyba při mazání tabulky: ${deleteError.message}`);
+          return;
+        }
+
+        console.log('Tabulka byla úspěšně vyčištěna.');
+
         // Hromadné odesílání dat do Supabase
         const { data, error } = await supabase
           .from('teams')
           .insert(teamsData)
           .select();
-    
+
         if (error) {
           console.error('Chyba při odesílání týmů:', error.message);
           alert(`Chyba při odesílání týmů: ${error.message}`);
         } else {
           console.log('Týmy úspěšně uloženy:', data);
-          alert('Všechny týmy byly úspěšně odeslány!');
         }
       } catch (error) {
         console.error('Neočekávaná chyba při odesílání týmů:', error.message);
         alert(`Neočekávaná chyba: ${error.message}`);
       }
     });
-    
+
 
   }
 }
+
+// ------------ Načtení týmů z db ------------
+const buttonUploadTournament = document.querySelector('#buttonUploadTournament');
+buttonUploadTournament.addEventListener('click', async () => {
+
+  try {
+    // Skrytí formuláře
+    form.classList.add('hidden');
+
+    const teams = await fetchTeams();
+    // Použití lodash pro seskupení týmů podle skupin
+    const groupedTeams = _.groupBy(teams, (team) => team.groups.name);
+
+    console.log(groupedTeams);
+
+    // Generování seznamu
+    const teamsListContainer = document.getElementById('teamsList');
+    teamsListContainer.innerHTML = '';
+
+    Object.entries(groupedTeams).forEach(([groupName, teams]) => {
+      const groupUl = document.createElement('ul');
+      groupUl.classList.add('list-group', 'w-50', 'mx-auto', 'container');
+      groupUl.innerHTML = `<strong>${groupName}</strong>`;
+
+      teams.forEach((team) => {
+        const teamLi = document.createElement('li');
+        teamLi.classList.add('list-group-item')
+        teamLi.innerHTML = `
+        <div class="row align-items-center">
+        <div class="col-9">
+          <input type="text" class="form-control" value="${team.name}">
+        </div>
+        <div class="col-1">
+          
+
+        </div>
+        <div id="buttonDeleteTeamFromTounament" class="col-1 text-end hidden">
+          <button type="button" id="${team.id}" class="btn btn-danger btn_delete">X</button>
+        </div>
+      </div>
+      `
+      
+      // Odstanění týmu z turnaje i z databáze
+      const btnDelete = teamLi.querySelector('.btn_delete');
+      btnDelete.addEventListener('click', async (event) => {
+        event.preventDefault();
+        console.log(event.target);
+        const teamId = parseInt(event.target.id, 10);
+        const { error } = await supabase
+         .from('teams')
+         .delete()
+         .eq('id', teamId);
+
+        if (error) {
+          console.error('Chyba při mazání týmu:', error.message);
+          alert(`Chyba při mazání týmu: ${error.message}`);
+          return;
+        }
+
+        console.log(`Tým s ID ${teamId} byl úspěšně odstraněn.`);
+        // Odebereme tým z seznamu
+        teamLi.remove();
+      });
+
+      // Přidání týmu do turnaje
+
+
+      groupUl.appendChild(teamLi);
+        
+      });
+       
+
+      teamsListContainer.appendChild(groupUl);
+    });
+
+    // Přidat tlačítko UPRAVIT, které u týmů zobrazí tlačítka na editaci
+    const buttonEditTeams = document.createElement('button');
+    buttonEditTeams.classList.add('btn', 'btn-primary', 'p-2', 'm-2');
+    buttonEditTeams.id = 'buttonEditTeams';
+    buttonEditTeams.textContent = 'Upravit';
+    teamsListContainer.appendChild(buttonEditTeams);
+    
+    buttonEditTeams.addEventListener('click', () => {
+      const btnDelete = document.querySelectorAll('#buttonDeleteTeamFromTounament');
+      btnDelete.forEach((btn) => {
+        btn.classList.toggle('hidden');
+      });
+    });
+
+    // Přidat tlačítko POKRAČOVAT, které přejde na rozlosování turnaje
+    const buttonSaveTeams = document.createElement("button")
+    buttonSaveTeams.id = 'buttonSaveTeams'
+    buttonSaveTeams.classList.add('btn', 'btn-primary', 'p-2', 'm-2');
+    buttonSaveTeams.textContent = 'Uložit a pokračovat'
+    teamsListContainer.appendChild(buttonSaveTeams);
+
+
+
+    console.log('✅ Úspěšně načtené týmy:', teams);
+
+    // Zobrazíme týmy na stránce
+
+  } catch (error) {
+    console.error('🚨 Chyba při zpracování týmů:', error.message);
+    alert(`Chyba při načítání týmů: ${error.message}`);
+  }
+});
+
+//-------------- Tlačítko vytvořit nový turnaj ----------------
+const buttonCreateNewTournament = document.querySelector('#buttonCreateNewTournament');
+buttonCreateNewTournament.addEventListener('click', () => {
+  form.classList.remove('hidden');
+  tournamentInfo.classList.add('hidden');
+  teamsList.innerHTML = "";
+});

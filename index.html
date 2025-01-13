@@ -6,53 +6,122 @@
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <link rel="stylesheet" href="./src/style.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vite App</title>
+  <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.min.css">
+  <title>Tournament App</title>
   <script defer src="/src/main.js" type="module"></script>
 </head>
 
-<body>
-  <form method="" action="" class="">
+<body class="container text-center bg-success-subtle">
+
+  <header class="text-center p-2" id="header">
+    <h1>Turnajový systém</h1>
+    <div id="buttonsForTournament" class="hidden m-4">
+      <button id="buttonUploadTournament" class="btn btn-primary">Načíst turnaj</button>
+      <button id="buttonCreateNewTournament" class="btn btn-secondary">Vytvořit nový turnaj</button>
+    </div>
+  </header>
+
+  <form method="" action="" class="container mt-4 p-2">
     <!-- Name of Tournament -->
-    <label for="nameOfTournament">Název turnaje</label>
-    <input type="text" name="nameOfTournament" id="" value="Turnaj" required><br />
-
+    <div class="row mb-3 align-items-center justify-content-center">
+      <label for="nameOfTournament" class="col-sm-3 col-form-label text-end">Název turnaje</label>
+      <div class="col-sm-6">
+        <input 
+          type="text" 
+          class="form-control" 
+          name="nameOfTournament" 
+          id="nameOfTournament" 
+          value="Turnaj" 
+          required>
+      </div>
+    </div>
+  
     <!-- Place of Tournament -->
-    <label for="placeOfTournament">Místo turnaje</label>
-    <input type="text" name="placeOfTournament" id="" value="Spillarka" required><br />
-
+    <div class="row mb-3 align-items-center justify-content-center">
+      <label for="placeOfTournament" class="col-sm-3 col-form-label text-end">Místo turnaje</label>
+      <div class="col-sm-6">
+        <input 
+          type="text" 
+          class="form-control" 
+          name="placeOfTournament" 
+          id="placeOfTournament" 
+          value="Spillarka" 
+          required>
+      </div>
+    </div>
+  
     <!-- Date of Tournament -->
-    <label for="dateOfTournament">Datum turnaje</label>
-    <input type="date" name="dateOfTournament" id="" required><br />
-
+    <div class="row mb-3 align-items-center justify-content-center">
+      <label for="dateOfTournament" class="col-sm-3 col-form-label text-end">Datum turnaje</label>
+      <div class="col-sm-6">
+        <input 
+          type="date" 
+          class="form-control" 
+          name="dateOfTournament" 
+          id="dateOfTournament" 
+          required>
+      </div>
+    </div>
+  
     <!-- Time of Tournament -->
-    <label for="timeOfTournament">Čas turnaje</label>
-    <input type="time" name="timeOfTournament" id="" required><br />
-
+    <div class="row mb-3 align-items-center justify-content-center">
+      <label for="timeOfTournament" class="col-sm-3 col-form-label text-end">Čas turnaje</label>
+      <div class="col-sm-6">
+        <input 
+          type="time" 
+          class="form-control" 
+          name="timeOfTournament" 
+          id="timeOfTournament" 
+          required>
+      </div>
+    </div>
+  
     <!-- Number of Participants -->
-    <label for="numberOfParticipants">Počet účastníků</label>
-    <input type="text" name="numberOfParticipants" id="" required><br />
-
+    <div class="row mb-3 align-items-center justify-content-center">
+      <label for="numberOfParticipants" class="col-sm-3 col-form-label text-end">Počet účastníků</label>
+      <div class="col-sm-6">
+        <input 
+          type="text" 
+          class="form-control" 
+          name="numberOfParticipants" 
+          id="numberOfParticipants" 
+          required>
+      </div>
+    </div>
+  
     <!-- Number of Groups -->
-    <label for="numberOfGroups">Počet skupin</label>
-    <select name="numberOfGroups" id="">
-      <option value="1" selected="selected">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-      <option value="5">5</option>
-      <option value="6">6</option>
-      <option value="7">7</option>
-      <option value="8">8</option>
-      <option value="9">9</option>
-      <option value="10">10</option>
-    </select><br />
-
+    <div class="row mb-3 align-items-center justify-content-center">
+      <label for="numberOfGroups" class="col-sm-3 col-form-label text-end">Počet skupin</label>
+      <div class="col-sm-6">
+        <select 
+          class="form-select" 
+          name="numberOfGroups" 
+          id="numberOfGroups">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+      </div>
+    </div>
+  
     <!-- Submit Button -->
-    <input type="submit">
-
+    <div class="row justify-content-center">
+      <div class="col-sm-4 text-center">
+        <input type="submit" class="btn btn-primary w-50" value="Odeslat">
+      </div>
+    </div>
   </form>
-  <div id="tables"></div>
-  <div id="teamsList"></div>
+  
+  
+  <div id="tournamentInfo"></div>
+  <div id="teamsList" class="text-center"></div>
 
 </body>
 

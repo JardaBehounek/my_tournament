@@ -2,12 +2,20 @@ body {
   margin: 10px;
   padding: 10px;
   height: 100%;
+  
 }
 
 .hidden {
   display: none;
 }  
 
+ul {
+  list-style-type: none;
+}
+
+li {
+  margin-bottom: 5px;
+}
 
 @media (prefers-color-scheme: light) {
   :root {
