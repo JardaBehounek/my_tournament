@@ -1,5 +1,5 @@
 {
-  "name": "turnaj",
+  "name": "my-tournament",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "vite": "^6.0.5"
+    "vite": "^6.1.0"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.47.10",
